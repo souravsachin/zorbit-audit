@@ -7,6 +7,7 @@ import {
   Res,
   Header,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuditQueryService } from '../services/audit-query.service';
 import { AuditExportService } from '../services/audit-export.service';
@@ -24,6 +25,8 @@ import {
  * Audit log query and export endpoints.
  * Organization-scoped endpoints enforce namespace isolation.
  */
+@ApiTags('audit')
+@ApiBearerAuth()
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class AuditController {
@@ -32,12 +35,11 @@ export class AuditController {
     private readonly exportService: AuditExportService,
   ) {}
 
-  /**
-   * GET /api/v1/O/:orgId/audit/logs
-   * Query audit logs with filters and pagination.
-   */
   @Get('api/v1/O/:orgId/audit/logs')
   @UseGuards(NamespaceGuard)
+  @ApiOperation({ summary: 'Query audit logs', description: 'Query audit logs with filters and pagination.' })
+  @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
+  @ApiResponse({ status: 200, description: 'Paginated audit logs returned.' })
   async queryLogs(
     @Param('orgId') orgId: string,
     @Query() query: AuditQueryDto,
@@ -45,12 +47,13 @@ export class AuditController {
     return this.queryService.query(orgId, query);
   }
 
-  /**
-   * GET /api/v1/O/:orgId/audit/logs/:logId
-   * Get a single audit record by hashId.
-   */
   @Get('api/v1/O/:orgId/audit/logs/:logId')
   @UseGuards(NamespaceGuard)
+  @ApiOperation({ summary: 'Get audit record', description: 'Get a single audit record by hashId.' })
+  @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
+  @ApiParam({ name: 'logId', description: 'Audit record short hash ID', example: 'AUD-81F3' })
+  @ApiResponse({ status: 200, description: 'Audit record returned.' })
+  @ApiResponse({ status: 404, description: 'Audit record not found.' })
   async findOne(
     @Param('orgId') orgId: string,
     @Param('logId') logId: string,
@@ -58,21 +61,18 @@ export class AuditController {
     return this.queryService.findOne(orgId, logId);
   }
 
-  /**
-   * GET /api/v1/G/audit/stats
-   * Get aggregate audit statistics (global).
-   */
   @Get('api/v1/G/audit/stats')
+  @ApiOperation({ summary: 'Get audit statistics', description: 'Get aggregate audit statistics (global).' })
+  @ApiResponse({ status: 200, description: 'Audit statistics returned.' })
   async getStats(): Promise<AuditStatsResult> {
     return this.queryService.getStats();
   }
 
-  /**
-   * GET /api/v1/O/:orgId/audit/export
-   * Export audit logs as CSV or JSON.
-   */
   @Get('api/v1/O/:orgId/audit/export')
   @UseGuards(NamespaceGuard)
+  @ApiOperation({ summary: 'Export audit logs', description: 'Export audit logs as CSV or JSON.' })
+  @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
+  @ApiResponse({ status: 200, description: 'Audit logs exported.' })
   async exportLogs(
     @Param('orgId') orgId: string,
     @Query() query: AuditExportDto,

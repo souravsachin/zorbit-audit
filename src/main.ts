@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
@@ -18,6 +19,16 @@ async function bootstrap(): Promise<void> {
   );
 
   app.enableCors();
+
+  const config = new DocumentBuilder()
+    .setTitle('Zorbit Audit')
+    .setDescription('Immutable audit trail for all platform operations. Captures events from all services via Kafka and provides query, search, statistics, and export capabilities.')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('audit', 'Audit log query, statistics, and export')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document);
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3006);
