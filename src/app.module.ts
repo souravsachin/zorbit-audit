@@ -24,7 +24,7 @@ import { AuditRetentionPolicy } from './models/entities/audit-retention-policy.e
         username: config.get<string>('DATABASE_USER', 'zorbit'),
         password: config.get<string>('DATABASE_PASSWORD', 'zorbit_dev'),
         entities: [AuditRecord, AuditRetentionPolicy],
-        synchronize: false,
+        synchronize: config.get<string>('DATABASE_SYNCHRONIZE', 'false') === 'true',
         logging: config.get<string>('NODE_ENV') !== 'production',
       }),
     }),

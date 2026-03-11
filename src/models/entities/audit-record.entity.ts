@@ -40,12 +40,12 @@ export class AuditRecord {
   namespace!: Record<string, unknown>;
 
   /** The type of resource affected, e.g. 'user', 'session', 'token' */
-  @Column({ name: 'resource_type', length: 64, nullable: true })
+  @Column({ name: 'resource_type', type: 'varchar', length: 64, nullable: true })
   @Index()
   resourceType!: string | null;
 
   /** The identifier of the affected resource */
-  @Column({ name: 'resource_id', length: 64, nullable: true })
+  @Column({ name: 'resource_id', type: 'varchar', length: 64, nullable: true })
   @Index()
   resourceId!: string | null;
 
@@ -67,7 +67,7 @@ export class AuditRecord {
   metadata!: Record<string, unknown> | null;
 
   /** IP address of the original requester */
-  @Column({ name: 'ip_address', length: 45, nullable: true })
+  @Column({ name: 'ip_address', type: 'varchar', length: 45, nullable: true })
   ipAddress!: string | null;
 
   /** Timestamp of the original event (from the event envelope) */
@@ -76,7 +76,7 @@ export class AuditRecord {
   eventTimestamp!: Date;
 
   /** Organization this record belongs to (for namespace isolation queries) */
-  @Column({ name: 'organization_hash_id', length: 20, nullable: true })
+  @Column({ name: 'organization_hash_id', type: 'varchar', length: 20, nullable: true })
   @Index()
   organizationHashId!: string | null;
 
