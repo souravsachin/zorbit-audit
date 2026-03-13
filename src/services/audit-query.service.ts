@@ -161,7 +161,7 @@ export class AuditQueryService {
    */
   async findAllForExport(
     orgId: string,
-    filters: { startDate?: string; endDate?: string; actor?: string; action?: string },
+    filters: { startDate?: string; endDate?: string; actor?: string; action?: string; eventType?: string },
   ): Promise<AuditRecord[]> {
     const qb = this.auditRepository
       .createQueryBuilder('audit')
@@ -185,6 +185,12 @@ export class AuditQueryService {
 
     if (filters.action) {
       qb.andWhere('audit.action = :action', { action: filters.action });
+    }
+
+    if (filters.eventType) {
+      qb.andWhere('audit.event_type LIKE :eventType', {
+        eventType: `%${filters.eventType}%`,
+      });
     }
 
     qb.orderBy('audit.event_timestamp', 'DESC');

@@ -80,6 +80,11 @@ export class AuditExportDto {
   @IsString()
   action?: string;
 
+  @ApiPropertyOptional({ description: 'Event type filter', example: 'identity.user.created' })
+  @IsOptional()
+  @IsString()
+  eventType?: string;
+
   @ApiPropertyOptional({ description: 'Export format', example: 'json', enum: ['csv', 'json'] })
   @IsOptional()
   @IsString()

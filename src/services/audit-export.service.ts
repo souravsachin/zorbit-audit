@@ -38,33 +38,21 @@ export class AuditExportService {
    */
   exportCsv(records: AuditRecord[]): string {
     const headers = [
-      'hashId',
+      'timestamp',
       'eventType',
-      'source',
       'actor',
-      'namespace',
-      'resourceType',
+      'resource',
       'resourceId',
-      'action',
-      'ipAddress',
-      'eventTimestamp',
-      'organizationHashId',
-      'createdAt',
+      'details',
     ];
 
     const rows = records.map((record) => [
-      this.escapeCsv(record.hashId),
+      this.escapeCsv(record.eventTimestamp?.toISOString() || ''),
       this.escapeCsv(record.eventType),
-      this.escapeCsv(record.source),
-      this.escapeCsv(JSON.stringify(record.actor)),
-      this.escapeCsv(JSON.stringify(record.namespace)),
+      this.escapeCsv(record.actor ? JSON.stringify(record.actor) : ''),
       this.escapeCsv(record.resourceType || ''),
       this.escapeCsv(record.resourceId || ''),
       this.escapeCsv(record.action),
-      this.escapeCsv(record.ipAddress || ''),
-      this.escapeCsv(record.eventTimestamp?.toISOString() || ''),
-      this.escapeCsv(record.organizationHashId || ''),
-      this.escapeCsv(record.createdAt?.toISOString() || ''),
     ]);
 
     const csvLines = [

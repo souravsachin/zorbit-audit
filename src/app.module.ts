@@ -6,6 +6,7 @@ import { AuditModule } from './modules/audit.module';
 import { EventsModule } from './modules/events.module';
 import { AuditRecord } from './models/entities/audit-record.entity';
 import { AuditRetentionPolicy } from './models/entities/audit-retention-policy.entity';
+import { HealthController } from './controllers/health.controller';
 
 @Module({
   imports: [
@@ -32,5 +33,6 @@ import { AuditRetentionPolicy } from './models/entities/audit-retention-policy.e
     EventsModule,
     AuditModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}

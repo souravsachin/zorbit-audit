@@ -83,6 +83,7 @@ export class AuditController {
       endDate: query.endDate,
       actor: query.actor,
       action: query.action,
+      eventType: query.eventType,
     });
 
     const format = query.format || 'json';
