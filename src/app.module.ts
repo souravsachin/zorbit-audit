@@ -7,6 +7,7 @@ import { EventsModule } from './modules/events.module';
 import { AuditRecord } from './models/entities/audit-record.entity';
 import { AuditRetentionPolicy } from './models/entities/audit-retention-policy.entity';
 import { HealthController } from './controllers/health.controller';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { HealthController } from './controllers/health.controller';
     ScheduleModule.forRoot(),
     EventsModule,
     AuditModule,
+    SeedModule,
   ],
   controllers: [HealthController],
 })
