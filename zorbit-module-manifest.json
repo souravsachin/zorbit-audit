@@ -1,0 +1,49 @@
+{
+  "moduleId": "zorbit-cor-audit",
+  "moduleName": "Audit Service",
+  "moduleType": "cor",
+  "version": "1.0.0",
+  "placement": {
+    "scaffold": "Platform Core",
+    "scaffoldSortOrder": 10,
+    "capabilityArea": "Audit",
+    "sortOrder": 60
+  },
+  "registration": {
+    "kafkaTopic": "platform-module-announcements",
+    "manifestUrl": "https://zorbit-uat.onezippy.ai/api/audit/api/v1/G/manifest"
+  },
+  "navigation": {
+    "sections": [
+      {
+        "label": "Audit",
+        "icon": "history",
+        "sortOrder": 6,
+        "items": [
+          {
+            "label": "Audit Logs",
+            "feRoute": "/m/audit/logs",
+            "beRoute": "/api/audit/api/v1/O/{{org_id}}/audit/logs",
+            "privilege": "audit.log.read",
+            "icon": "receipt_long"
+          },
+          {
+            "label": "Statistics",
+            "feRoute": "/m/audit/stats",
+            "beRoute": "/api/audit/api/v1/G/audit/stats",
+            "privilege": "audit.stats.read",
+            "icon": "bar_chart"
+          }
+        ]
+      }
+    ]
+  },
+  "dependencies": [
+    "zorbit-cor-identity",
+    "zorbit-cor-event_bus"
+  ],
+  "backend": {
+    "healthEndpoint": "/api/audit/api/v1/G/health",
+    "apiPrefix": "/api/audit/api/v1"
+  }
+}
