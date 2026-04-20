@@ -1,40 +1,266 @@
 {
-  "moduleId": "zorbit-cor-audit",
-  "moduleName": "Audit Service",
-  "moduleType": "cor",
+  "db": {
+    "dbName": "zorbit_audit",
+    "dbType": "postgres",
+    "operations": {
+      "backup": {
+        "method": "POST",
+        "beRoute": "/api/audit/api/v1/G/db/backup",
+        "privilege": "audit.db.backup"
+      },
+      "restore": {
+        "method": "POST",
+        "beRoute": "/api/audit/api/v1/G/db/restore",
+        "privilege": "audit.db.restore",
+        "destructive": true
+      },
+      "flushAllData": {
+        "method": "DELETE",
+        "beRoute": "/api/audit/api/v1/G/seed/all",
+        "privilege": "audit.seed.all",
+        "destructive": true
+      },
+      "seedDemoData": {
+        "method": "POST",
+        "beRoute": "/api/audit/api/v1/G/seed/demo",
+        "privilege": "audit.seed.demo"
+      },
+      "flushDemoData": {
+        "method": "DELETE",
+        "beRoute": "/api/audit/api/v1/G/seed/demo",
+        "privilege": "audit.seed.demo"
+      },
+      "seedSystemMin": {
+        "method": "POST",
+        "beRoute": "/api/audit/api/v1/G/seed/system-min",
+        "privilege": "audit.seed.system-min"
+      }
+    }
+  },
+  "guide": {
+    "docs": {
+      "links": [
+        {
+          "href": "/api/audit/api-docs",
+          "label": "REST API reference"
+        },
+        {
+          "href": "/m/audit/guide/whitepaper.pdf",
+          "label": "Architecture whitepaper"
+        }
+      ],
+      "feRoute": "/m/audit/guide/resources"
+    },
+    "intro": {
+      "feRoute": "/m/audit/guide/intro",
+      "summary": "This is the Audit Service module. Author its full description in the source manifest (US-MF-2089).",
+      "headline": "Audit Service"
+    },
+    "slides": {
+      "deck": [
+        {
+          "body": "What this module does (TBD by module author).",
+          "title": "Overview"
+        },
+        {
+          "body": "Key capabilities this module exposes (TBD).",
+          "title": "Capabilities"
+        },
+        {
+          "body": "How other modules integrate with it (TBD).",
+          "title": "Integration"
+        }
+      ],
+      "feRoute": "/m/audit/guide/presentation"
+    },
+    "videos": {
+      "entries": [],
+      "feRoute": "/m/audit/guide/videos"
+    },
+    "pricing": {
+      "tiers": [
+        {
+          "name": "Community",
+          "features": [
+            "Basic features",
+            "Community support"
+          ],
+          "monthlyPrice": 0
+        },
+        {
+          "name": "Business",
+          "features": [
+            "All features",
+            "Email support"
+          ],
+          "monthlyPrice": 199
+        },
+        {
+          "name": "Enterprise",
+          "features": [
+            "Dedicated CSM",
+            "SLA"
+          ],
+          "monthlyPrice": null
+        }
+      ],
+      "feRoute": "/m/audit/guide/pricing"
+    },
+    "lifecycle": {
+      "phases": [
+        {
+          "name": "Draft",
+          "description": "Author and iterate."
+        },
+        {
+          "name": "Review",
+          "description": "Peer review."
+        },
+        {
+          "name": "Published",
+          "description": "Live."
+        },
+        {
+          "name": "Retired",
+          "description": "Archived; read-only."
+        }
+      ],
+      "feRoute": "/m/audit/guide/lifecycle"
+    }
+  },
+  "backend": {
+    "apiPrefix": "/api/audit/api/v1",
+    "healthEndpoint": "/api/audit/api/v1/G/health"
+  },
   "version": "1.0.0",
+  "moduleId": "zorbit-cor-audit",
   "placement": {
     "scaffold": "Platform Core",
-    "scaffoldSortOrder": 10,
+    "sortOrder": 60,
     "capabilityArea": "Audit",
-    "sortOrder": 60
+    "scaffoldSortOrder": 10
   },
-  "registration": {
-    "kafkaTopic": "platform-module-announcements",
-    "manifestUrl": "https://zorbit-uat.onezippy.ai/api/audit/api/v1/G/manifest"
-  },
+  "moduleName": "Audit Service",
+  "moduleType": "cor",
   "navigation": {
     "sections": [
       {
-        "label": "Audit",
         "icon": "history",
-        "sortOrder": 6,
         "items": [
           {
+            "icon": "receipt_long",
             "label": "Audit Logs",
-            "feRoute": "/m/audit/logs",
             "beRoute": "/api/audit/api/v1/O/{{org_id}}/audit/logs",
+            "feRoute": "/m/audit/logs",
             "privilege": "audit.log.read",
-            "icon": "receipt_long"
+            "feComponent": "AuditPage"
           },
           {
+            "icon": "bar_chart",
             "label": "Statistics",
-            "feRoute": "/m/audit/stats",
             "beRoute": "/api/audit/api/v1/G/audit/stats",
+            "feRoute": "/m/audit/stats",
             "privilege": "audit.stats.read",
-            "icon": "bar_chart"
+            "feComponent": "AuditPage"
           }
-        ]
+        ],
+        "label": "Audit",
+        "sortOrder": 6
+      },
+      {
+        "id": "guide",
+        "items": [
+          {
+            "icon": "book-open",
+            "label": "Intro",
+            "feRoute": "/m/audit/guide/intro",
+            "feComponent": "GuideIntroView"
+          },
+          {
+            "icon": "presentation",
+            "label": "Presentation",
+            "feRoute": "/m/audit/guide/presentation",
+            "feComponent": "GuideSlideDeck"
+          },
+          {
+            "icon": "git-branch",
+            "label": "Lifecycle",
+            "feRoute": "/m/audit/guide/lifecycle",
+            "feComponent": "GuideLifecycle"
+          },
+          {
+            "icon": "video",
+            "label": "Videos",
+            "feRoute": "/m/audit/guide/videos",
+            "feComponent": "GuideVideos"
+          },
+          {
+            "icon": "file-text",
+            "label": "Resources",
+            "feRoute": "/m/audit/guide/resources",
+            "feComponent": "GuideDocs"
+          },
+          {
+            "icon": "dollar-sign",
+            "label": "Pricing",
+            "feRoute": "/m/audit/guide/pricing",
+            "feComponent": "GuidePricing"
+          }
+        ],
+        "label": "Guide",
+        "sortOrder": 90
+      },
+      {
+        "id": "deployments",
+        "items": [
+          {
+            "icon": "server",
+            "label": "Deployments",
+            "feRoute": "/m/audit/deployments",
+            "feComponent": "DeploymentsView"
+          }
+        ],
+        "label": "Deployments",
+        "sortOrder": 91
+      },
+      {
+        "id": "db",
+        "items": [
+          {
+            "icon": "database",
+            "label": "DB Operations",
+            "feRoute": "/m/audit/db",
+            "feComponent": "DbOperationsPanel"
+          }
+        ],
+        "label": "Database",
+        "sortOrder": 92
+      }
+    ]
+  },
+  "deployments": {
+    "build": {
+      "builtAt": "2026-04-19T20:00:00Z",
+      "commitSha": "placeholder",
+      "dockerImage": "zorbit-cor-audit:1.0.0",
+      "nodeVersion": "20.20.2"
+    },
+    "health": {
+      "beRoute": "/api/audit/api/v1/G/health"
+    },
+    "runbook": {
+      "href": "/m/audit/deployments/runbook"
+    },
+    "environments": [
+      {
+        "url": "https://zorbit-uat.onezippy.ai",
+        "name": "uat",
+        "status": "healthy"
+      },
+      {
+        "url": "https://zorbit.scalatics.com",
+        "name": "prod",
+        "status": "unknown"
       }
     ]
   },
@@ -42,8 +268,8 @@
     "zorbit-cor-identity",
     "zorbit-cor-event_bus"
   ],
-  "backend": {
-    "healthEndpoint": "/api/audit/api/v1/G/health",
-    "apiPrefix": "/api/audit/api/v1"
+  "registration": {
+    "kafkaTopic": "platform-module-announcements",
+    "manifestUrl": "https://zorbit-uat.onezippy.ai/api/audit/api/v1/G/manifest"
   }
 }
