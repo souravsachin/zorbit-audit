@@ -132,7 +132,7 @@
     "apiPrefix": "/api/audit/api/v1",
     "healthEndpoint": "/api/audit/api/v1/G/health"
   },
-  "version": "1.1.0",
+  "version": "1.2.0",
   "moduleId": "zorbit-cor-audit",
   "placement": {
     "scaffold": "Platform Core",
@@ -161,13 +161,46 @@
                 "pageSize": 50
               },
               "columns": [
-                { "key": "eventId", "label": "Event ID", "type": "id" },
-                { "key": "type", "label": "Type", "type": "chip", "sortable": true, "filterable": true },
-                { "key": "actor", "label": "Actor", "type": "id", "sortable": true, "filterable": true },
-                { "key": "target", "label": "Target", "type": "id", "sortable": true, "filterable": true },
-                { "key": "timestamp", "label": "When", "type": "datetime", "format": "relative", "sortable": true }
+                {
+                  "key": "eventId",
+                  "label": "Event ID",
+                  "type": "id"
+                },
+                {
+                  "key": "type",
+                  "label": "Type",
+                  "type": "chip",
+                  "sortable": true,
+                  "filterable": true
+                },
+                {
+                  "key": "actor",
+                  "label": "Actor",
+                  "type": "id",
+                  "sortable": true,
+                  "filterable": true
+                },
+                {
+                  "key": "target",
+                  "label": "Target",
+                  "type": "id",
+                  "sortable": true,
+                  "filterable": true
+                },
+                {
+                  "key": "timestamp",
+                  "label": "When",
+                  "type": "datetime",
+                  "format": "relative",
+                  "sortable": true
+                }
               ],
-              "defaultSort": [ { "field": "timestamp", "order": "desc" } ]
+              "defaultSort": [
+                {
+                  "field": "timestamp",
+                  "order": "desc"
+                }
+              ]
             }
           },
           {
@@ -224,19 +257,6 @@
         ],
         "label": "Guide",
         "sortOrder": 90
-      },
-      {
-        "id": "deployments",
-        "items": [
-          {
-            "icon": "server",
-            "label": "Deployments",
-            "feRoute": "/m/audit/deployments",
-            "feComponent": "DeploymentsView"
-          }
-        ],
-        "label": "Deployments",
-        "sortOrder": 91
       },
       {
         "id": "db",
