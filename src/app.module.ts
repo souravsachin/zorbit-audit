@@ -8,6 +8,7 @@ import { AuditRecord } from './models/entities/audit-record.entity';
 import { AuditRetentionPolicy } from './models/entities/audit-retention-policy.entity';
 import { HealthController } from './controllers/health.controller';
 import { SeedModule } from './seed/seed.module';
+import { ModuleAnnouncementService } from './events/module-announcement.service';
 
 @Module({
   imports: [
@@ -36,5 +37,6 @@ import { SeedModule } from './seed/seed.module';
     SeedModule,
   ],
   controllers: [HealthController],
+  providers: [ModuleAnnouncementService],
 })
 export class AppModule {}

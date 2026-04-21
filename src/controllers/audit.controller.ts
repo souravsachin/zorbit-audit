@@ -13,6 +13,8 @@ import { AuditQueryService } from '../services/audit-query.service';
 import { AuditExportService } from '../services/audit-export.service';
 import { JwtAuthGuard } from '../middleware/jwt-auth.guard';
 import { NamespaceGuard } from '../middleware/namespace.guard';
+import { ZorbitPrivilegeGuard } from '../middleware/zorbit-privilege.guard';
+import { RequirePrivileges } from '../middleware/decorators';
 import { AuditRecord } from '../models/entities/audit-record.entity';
 import {
   AuditQueryDto,
@@ -28,7 +30,7 @@ import {
 @ApiTags('audit')
 @ApiBearerAuth()
 @Controller()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ZorbitPrivilegeGuard)
 export class AuditController {
   constructor(
     private readonly queryService: AuditQueryService,
@@ -37,6 +39,7 @@ export class AuditController {
 
   @Get('api/v1/O/:orgId/audit/logs')
   @UseGuards(NamespaceGuard)
+  @RequirePrivileges('audit.log.read')
   @ApiOperation({ summary: 'Query audit logs', description: 'Query audit logs with filters and pagination.' })
   @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
   @ApiResponse({ status: 200, description: 'Paginated audit logs returned.' })
@@ -49,6 +52,7 @@ export class AuditController {
 
   @Get('api/v1/O/:orgId/audit/logs/:logId')
   @UseGuards(NamespaceGuard)
+  @RequirePrivileges('audit.log.read')
   @ApiOperation({ summary: 'Get audit record', description: 'Get a single audit record by hashId.' })
   @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
   @ApiParam({ name: 'logId', description: 'Audit record short hash ID', example: 'AUD-81F3' })
@@ -62,6 +66,7 @@ export class AuditController {
   }
 
   @Get('api/v1/G/audit/stats')
+  @RequirePrivileges('audit.log.read')
   @ApiOperation({ summary: 'Get audit statistics', description: 'Get aggregate audit statistics (global).' })
   @ApiResponse({ status: 200, description: 'Audit statistics returned.' })
   async getStats(): Promise<AuditStatsResult> {
@@ -70,6 +75,7 @@ export class AuditController {
 
   @Get('api/v1/O/:orgId/audit/export')
   @UseGuards(NamespaceGuard)
+  @RequirePrivileges('audit.log.export')
   @ApiOperation({ summary: 'Export audit logs', description: 'Export audit logs as CSV or JSON.' })
   @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
   @ApiResponse({ status: 200, description: 'Audit logs exported.' })
