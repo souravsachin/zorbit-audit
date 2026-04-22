@@ -132,7 +132,7 @@
     "apiPrefix": "/api/audit/api/v1",
     "healthEndpoint": "/api/audit/api/v1/G/health"
   },
-  "version": "1.3.0",
+  "version": "1.4.0",
   "moduleId": "zorbit-cor-audit",
   "placement": {
     "scaffold": "Platform Core",
@@ -266,7 +266,7 @@
         "sortOrder": 10
       },
       {
-        "id": "db",
+        "id": "zorbit-cor-audit-db",
         "items": [
           {
             "icon": "database",
