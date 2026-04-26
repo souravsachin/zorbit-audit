@@ -110,6 +110,90 @@ export class AuditQueryService {
   }
 
   /**
+   * Query audit records across ALL organizations (global scope).
+   *
+   * Cycle-104 follow-up (MSG-052/MSG-055): the SPA's Audit Logs page
+   * (declared as `DT-AUD-LOG` DataTable in the audit module manifest)
+   * calls `GET /api/audit/api/v1/G/events?page=1&pageSize=50&limit=50`.
+   * Previously only the org-scoped `/O/:orgId/audit/logs` was exposed,
+   * which forces every caller to know an org id up front. The global
+   * variant lets a super-admin view land cleanly without an org
+   * context and matches the manifest's declared `beRoute`. Caller
+   * privileges are still checked via `audit.log.read`.
+   *
+   * Supports both `pageSize` (DataTable convention) and `limit`
+   * (existing audit DTO convention) — `pageSize` wins when both are
+   * supplied.
+   */
+  async queryGlobal(
+    filters: AuditQueryDto & { pageSize?: number },
+  ): Promise<PaginatedResult<AuditRecord>> {
+    const page = filters.page || 1;
+    const limit = filters.pageSize ?? filters.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const qb = this.auditRepository.createQueryBuilder('audit');
+
+    if (filters.startDate && filters.endDate) {
+      qb.andWhere('audit.event_timestamp BETWEEN :start AND :end', {
+        start: new Date(filters.startDate),
+        end: new Date(filters.endDate),
+      });
+    } else if (filters.startDate) {
+      qb.andWhere('audit.event_timestamp >= :start', {
+        start: new Date(filters.startDate),
+      });
+    } else if (filters.endDate) {
+      qb.andWhere('audit.event_timestamp <= :end', {
+        end: new Date(filters.endDate),
+      });
+    }
+
+    if (filters.actor) {
+      qb.andWhere("audit.actor->>'hashId' = :actor", { actor: filters.actor });
+    }
+
+    if (filters.action) {
+      qb.andWhere('audit.action = :action', { action: filters.action });
+    }
+
+    if (filters.resourceType) {
+      qb.andWhere('audit.resource_type = :resourceType', {
+        resourceType: filters.resourceType,
+      });
+    }
+
+    if (filters.resourceId) {
+      qb.andWhere('audit.resource_id = :resourceId', {
+        resourceId: filters.resourceId,
+      });
+    }
+
+    if (filters.eventType) {
+      qb.andWhere('audit.event_type LIKE :eventType', {
+        eventType: `%${filters.eventType}%`,
+      });
+    }
+
+    if (filters.source) {
+      qb.andWhere('audit.source = :source', { source: filters.source });
+    }
+
+    qb.orderBy('audit.event_timestamp', 'DESC');
+    qb.skip(skip).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
    * Get aggregate audit statistics (global).
    */
   async getStats(): Promise<AuditStatsResult> {

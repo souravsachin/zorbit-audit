@@ -73,6 +73,28 @@ export class AuditController {
     return this.queryService.getStats();
   }
 
+  /**
+   * Cycle-104 follow-up (MSG-052/MSG-055): the audit module manifest
+   * declares `/api/audit/api/v1/G/events` as the `beRoute` for the
+   * `DT-AUD-LOG` DataTable, but no global events list endpoint
+   * existed — the SPA was getting 404. This adds a paginated global
+   * events feed for super-admin / global audit views, complementing
+   * the existing `/O/:orgId/audit/logs` org-scoped endpoint.
+   */
+  @Get('api/v1/G/events')
+  @RequirePrivileges('audit.log.read')
+  @ApiOperation({
+    summary: 'Query global audit events',
+    description:
+      'Paginated list of audit events across all organizations. Used by the platform-wide audit DataTable (DT-AUD-LOG).',
+  })
+  @ApiResponse({ status: 200, description: 'Paginated audit events returned.' })
+  async queryGlobalEvents(
+    @Query() query: AuditQueryDto,
+  ): Promise<PaginatedResult<AuditRecord>> {
+    return this.queryService.queryGlobal(query);
+  }
+
   @Get('api/v1/O/:orgId/audit/export')
   @UseGuards(NamespaceGuard)
   @RequirePrivileges('audit.log.export')

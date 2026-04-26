@@ -57,6 +57,19 @@ export class AuditQueryDto {
   @Min(1)
   @Max(100)
   limit?: number = 20;
+
+  /**
+   * DataTable callers (e.g. `zorbit-pfs-datatable`) supply `pageSize`
+   * instead of `limit`. Cycle-104 follow-up: accept both for the
+   * `/G/events` global endpoint. `pageSize` wins when both are sent.
+   */
+  @ApiPropertyOptional({ description: 'Items per page — DataTable alias for `limit` (max 100)', example: 50 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  pageSize?: number;
 }
 
 export class AuditExportDto {
