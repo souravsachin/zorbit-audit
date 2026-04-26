@@ -62,6 +62,7 @@ describe('AuditQueryService', () => {
       getManyAndCount: jest.fn().mockResolvedValue([mockAuditRecords, 2]),
       getMany: jest.fn().mockResolvedValue(mockAuditRecords),
       getRawMany: jest.fn().mockResolvedValue([]),
+      getCount: jest.fn().mockResolvedValue(2),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -182,6 +183,67 @@ describe('AuditQueryService', () => {
 
       await expect(service.findOne('O-92AF', 'AUD-0000')).rejects.toThrow(
         NotFoundException,
+      );
+    });
+  });
+
+  describe('count (E-OVERFETCH cycle-105)', () => {
+    it('should return {count} for an org with no filters', async () => {
+      mockQueryBuilder.getCount.mockResolvedValueOnce(42);
+
+      const result = await service.count('O-92AF', {});
+
+      expect(result).toEqual({ count: 42 });
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'audit.organization_hash_id = :orgId',
+        { orgId: 'O-92AF' },
+      );
+      // Crucially: no skip/take/getManyAndCount path — we never assemble row data
+      expect(mockQueryBuilder.getManyAndCount).not.toHaveBeenCalled();
+    });
+
+    it('should apply the same filter shape as query()', async () => {
+      mockQueryBuilder.getCount.mockResolvedValueOnce(7);
+
+      await service.count('O-92AF', {
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        actor: 'U-81F3',
+        action: 'created',
+        eventType: 'identity',
+        source: 'zorbit-identity',
+      });
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'audit.event_timestamp BETWEEN :start AND :end',
+        expect.any(Object),
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        "audit.actor->>'hashId' = :actor",
+        { actor: 'U-81F3' },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'audit.action = :action',
+        { action: 'created' },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'audit.event_type LIKE :eventType',
+        { eventType: '%identity%' },
+      );
+    });
+  });
+
+  describe('countGlobal (E-OVERFETCH cycle-105)', () => {
+    it('should return {count} across all orgs', async () => {
+      mockQueryBuilder.getCount.mockResolvedValueOnce(1247);
+
+      const result = await service.countGlobal({});
+
+      expect(result).toEqual({ count: 1247 });
+      // Global = no org_hash_id where clause
+      expect(mockQueryBuilder.where).not.toHaveBeenCalledWith(
+        'audit.organization_hash_id = :orgId',
+        expect.any(Object),
       );
     });
   });

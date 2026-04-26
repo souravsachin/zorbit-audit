@@ -92,6 +92,110 @@ export class AuditQueryService {
   }
 
   /**
+   * Count audit records for an organization, applying the same filter
+   * shape as `query()` minus pagination. Used by SPA count badges that
+   * previously fetched the full first page just to read its `total`.
+   *
+   * Cycle-105 E-OVERFETCH (MSG-082): the audit logs page renders a
+   * "Total Events" stat. Before this endpoint, the SPA fetched the
+   * paginated list (~25 rows × ~1 KB each = ~25 KB) just to read
+   * `total`. Returning `{count}` is ~30 bytes — a ~99% payload cut.
+   */
+  async count(
+    orgId: string,
+    filters: Pick<
+      AuditQueryDto,
+      'startDate' | 'endDate' | 'actor' | 'action' | 'resourceType' | 'resourceId' | 'eventType' | 'source'
+    >,
+  ): Promise<{ count: number }> {
+    const qb = this.auditRepository
+      .createQueryBuilder('audit')
+      .where('audit.organization_hash_id = :orgId', { orgId });
+
+    if (filters.startDate && filters.endDate) {
+      qb.andWhere('audit.event_timestamp BETWEEN :start AND :end', {
+        start: new Date(filters.startDate),
+        end: new Date(filters.endDate),
+      });
+    } else if (filters.startDate) {
+      qb.andWhere('audit.event_timestamp >= :start', { start: new Date(filters.startDate) });
+    } else if (filters.endDate) {
+      qb.andWhere('audit.event_timestamp <= :end', { end: new Date(filters.endDate) });
+    }
+
+    if (filters.actor) {
+      qb.andWhere("audit.actor->>'hashId' = :actor", { actor: filters.actor });
+    }
+    if (filters.action) {
+      qb.andWhere('audit.action = :action', { action: filters.action });
+    }
+    if (filters.resourceType) {
+      qb.andWhere('audit.resource_type = :resourceType', { resourceType: filters.resourceType });
+    }
+    if (filters.resourceId) {
+      qb.andWhere('audit.resource_id = :resourceId', { resourceId: filters.resourceId });
+    }
+    if (filters.eventType) {
+      qb.andWhere('audit.event_type LIKE :eventType', { eventType: `%${filters.eventType}%` });
+    }
+    if (filters.source) {
+      qb.andWhere('audit.source = :source', { source: filters.source });
+    }
+
+    const count = await qb.getCount();
+    return { count };
+  }
+
+  /**
+   * Count audit records across ALL organizations (global scope), with
+   * the same filter shape as `queryGlobal()` minus pagination.
+   *
+   * Cycle-105 E-OVERFETCH: companion to `count()` for the global
+   * super-admin audit view (DT-AUD-LOG).
+   */
+  async countGlobal(
+    filters: Pick<
+      AuditQueryDto,
+      'startDate' | 'endDate' | 'actor' | 'action' | 'resourceType' | 'resourceId' | 'eventType' | 'source'
+    >,
+  ): Promise<{ count: number }> {
+    const qb = this.auditRepository.createQueryBuilder('audit');
+
+    if (filters.startDate && filters.endDate) {
+      qb.andWhere('audit.event_timestamp BETWEEN :start AND :end', {
+        start: new Date(filters.startDate),
+        end: new Date(filters.endDate),
+      });
+    } else if (filters.startDate) {
+      qb.andWhere('audit.event_timestamp >= :start', { start: new Date(filters.startDate) });
+    } else if (filters.endDate) {
+      qb.andWhere('audit.event_timestamp <= :end', { end: new Date(filters.endDate) });
+    }
+
+    if (filters.actor) {
+      qb.andWhere("audit.actor->>'hashId' = :actor", { actor: filters.actor });
+    }
+    if (filters.action) {
+      qb.andWhere('audit.action = :action', { action: filters.action });
+    }
+    if (filters.resourceType) {
+      qb.andWhere('audit.resource_type = :resourceType', { resourceType: filters.resourceType });
+    }
+    if (filters.resourceId) {
+      qb.andWhere('audit.resource_id = :resourceId', { resourceId: filters.resourceId });
+    }
+    if (filters.eventType) {
+      qb.andWhere('audit.event_type LIKE :eventType', { eventType: `%${filters.eventType}%` });
+    }
+    if (filters.source) {
+      qb.andWhere('audit.source = :source', { source: filters.source });
+    }
+
+    const count = await qb.getCount();
+    return { count };
+  }
+
+  /**
    * Get a single audit record by hashId within an organization.
    */
   async findOne(orgId: string, logId: string): Promise<AuditRecord> {
