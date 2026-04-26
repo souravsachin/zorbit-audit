@@ -50,6 +50,32 @@ export class AuditController {
     return this.queryService.query(orgId, query);
   }
 
+  /**
+   * Lightweight count endpoint for audit logs in an organization.
+   *
+   * Cycle-105 E-OVERFETCH (MSG-082): SPA count badges previously
+   * fetched the paginated list just to read `total`. This sibling
+   * `_count` endpoint accepts the same filter query string but
+   * returns only `{count: N}` (~30 bytes), instead of ~25 KB of rows.
+   * Re-uses `audit.log.read` privilege.
+   */
+  @Get('api/v1/O/:orgId/audit/logs/_count')
+  @UseGuards(NamespaceGuard)
+  @RequirePrivileges('audit.log.read')
+  @ApiOperation({
+    summary: 'Count audit logs',
+    description:
+      'Count audit logs for an org applying the same filters as the list endpoint. Returns {count: N} only — ~30 bytes payload vs ~25 KB for the full list.',
+  })
+  @ApiParam({ name: 'orgId', description: 'Organization short hash ID', example: 'O-92AF' })
+  @ApiResponse({ status: 200, description: 'Audit log count returned.' })
+  async countLogs(
+    @Param('orgId') orgId: string,
+    @Query() query: AuditQueryDto,
+  ): Promise<{ count: number }> {
+    return this.queryService.count(orgId, query);
+  }
+
   @Get('api/v1/O/:orgId/audit/logs/:logId')
   @UseGuards(NamespaceGuard)
   @RequirePrivileges('audit.log.read')
@@ -93,6 +119,27 @@ export class AuditController {
     @Query() query: AuditQueryDto,
   ): Promise<PaginatedResult<AuditRecord>> {
     return this.queryService.queryGlobal(query);
+  }
+
+  /**
+   * Lightweight count endpoint for the global audit events feed.
+   *
+   * Cycle-105 E-OVERFETCH (MSG-082): companion to
+   * `GET /api/v1/G/events`. Used by the platform-wide audit DataTable
+   * (DT-AUD-LOG) and dashboard count badges. ~30 bytes vs full list.
+   */
+  @Get('api/v1/G/events/_count')
+  @RequirePrivileges('audit.log.read')
+  @ApiOperation({
+    summary: 'Count global audit events',
+    description:
+      'Count audit events across all orgs with the same filter shape as the list endpoint. Returns {count: N} only.',
+  })
+  @ApiResponse({ status: 200, description: 'Global audit event count returned.' })
+  async countGlobalEvents(
+    @Query() query: AuditQueryDto,
+  ): Promise<{ count: number }> {
+    return this.queryService.countGlobal(query);
   }
 
   @Get('api/v1/O/:orgId/audit/export')
