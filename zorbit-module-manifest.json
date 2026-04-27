@@ -262,21 +262,53 @@
             "feComponent": "AuditPage"
           }
         ],
-        "label": "Audit",
+        "id": "data",
+        "label": "Data",
         "sortOrder": 10
       },
       {
         "id": "zorbit-cor-audit-db",
+        "groupId": "deployment",
         "items": [
           {
             "icon": "database",
             "label": "DB Operations",
             "feRoute": "/m/audit/db",
             "feComponent": "DbOperationsPanel"
+          },
+          {
+            "icon": "Activity",
+            "label": "Health",
+            "feRoute": "/m/audit/health",
+            "feComponent": "HealthPanel"
           }
         ],
-        "label": "Database",
+        "label": "Deployment",
         "sortOrder": 20
+      },
+      {
+        "id": "setup",
+        "label": "Setup",
+        "icon": "Settings",
+        "sortOrder": 15,
+        "items": [
+          {
+            "label": "Retention Policies",
+            "feRoute": "/m/audit/setup/retention",
+            "beRoute": "/api/audit/api/v1/G/retention",
+            "privilege": "audit.retention.manage",
+            "icon": "Clock",
+            "sortOrder": 1
+          },
+          {
+            "label": "Configuration",
+            "feRoute": "/m/audit/setup/config",
+            "beRoute": "/api/audit/api/v1/G/health",
+            "privilege": "audit.retention.manage",
+            "icon": "Settings",
+            "sortOrder": 2
+          }
+        ]
       }
     ]
   },
