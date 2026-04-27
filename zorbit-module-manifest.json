@@ -135,7 +135,7 @@
   "version": "1.4.0",
   "moduleId": "zorbit-cor-audit",
   "placement": {
-    "scaffold": "Platform Core",
+    "scaffold": "core_platform_services",
     "sortOrder": 60,
     "capabilityArea": "Audit",
     "scaffoldSortOrder": 10
